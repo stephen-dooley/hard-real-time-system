@@ -2,6 +2,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <stdlib.h>
 
 int main(int argc, char** argv) {
 
@@ -12,7 +13,7 @@ int main(int argc, char** argv) {
 
   if (argc!=3) {
     fprintf(stderr, "Usage: %s <sleep time..msec><num_iteration>\n", argv[0]);
-    exit(1);
+    exit(0);
   }
 
   // progname=argv[0];
@@ -31,7 +32,8 @@ int main(int argc, char** argv) {
     stop=tv.tv_sec + tv.tv_usec*0.000001;
     printf("Time is %ld : %ld..slept for %lf ms\n",tv.tv_sec,tv.tv_usec,(stop-start)*1000);
   }
-  printf("Total time taken : actual %lf theory(excl. runtime): %d, ms \n",(stopinit)*1000,num_iter*delay);
+  printf("Total time taken : actual %lf theory(excl. runtime): %d, ms \n",(stop)*1000,num_iter*delay);
 
   return 0;
 }
+
