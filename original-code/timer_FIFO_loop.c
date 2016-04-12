@@ -8,7 +8,7 @@ int main(int argc, char** argv) {
   struct timeval tv;
   struct timezone tz;
   int i,delay,num_iter;
-  double init,start,stop;
+  double init,start,stop,now;
   // FIFO stuff
   int j;
   struct sched_param my_sched_params;
@@ -22,9 +22,7 @@ int main(int argc, char** argv) {
 
   scheduler=sched_getscheduler(0); // 0 is shorthand for calling process ID
   prio=sched_getparam(getpid(),&my_sched_params);
-  printf("Scheduler is %d (0=TS, 1=FIFO, 2=RR)and priority is %d\n",
-          scheduler,my_sched_params.sched_priority);
-
+  printf("Scheduler is %d (0=TS, 1=FIFO, 2=RR)and priority is %d\n",scheduler,my_sched_params.sched_priority);
   if (argc!=3) {
     fprintf(stderr, "Usage: %s <sleep time..msec><num_iter>\n", argv[0]);
     exit(1);
@@ -40,15 +38,20 @@ int main(int argc, char** argv) {
   for(i=0;i<num_iter;++i) {
     gettimeofday( &tv,&tz);
     start=tv.tv_sec + tv.tv_usec*0.000001;
-    // now sleep
-    usleep(delay*1000);
-    gettimeofday( &tv,&tz);
-    stop=tv.tv_sec + tv.tv_usec*0.000001;
-    printf("Time is %ld : %ld..slept for %lf ms\n",tv.tv_sec,tv.tv_usec,(stopstart)*1000);
+    // now loop continuously until time elapsed
+    //usleep(delay*1000);
+    stop = start + delay*0.001;
 
+    do {
+      gettimeofday(&tv, &tz);
+      now=tv.tv_sec + tv.tv_usec*0.000001;
+    }
+    while (now<stop);
+
+    printf("Time is %ld : %ld..slept for %lf ms\n",tv.tv_sec,tv.tv_usec,(now - start)*1000);
   }
 
-  printf("Total time taken : actual %lf theory(excl. runtime): %d, ms \n",(stopinit)*1000,num_iter*delay);
+  printf("Total time taken : actual %lf theory(excl. runtime): %d, ms \n",(stop - init)*1000,num_iter*delay);
 
   return 0;
 }
